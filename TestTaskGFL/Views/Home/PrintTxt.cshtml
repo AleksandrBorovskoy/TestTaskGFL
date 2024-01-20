@@ -1,0 +1,14 @@
+﻿@model CarViewModel
+@{
+    ViewData["Title"] = "Txt data";
+}
+
+<div class="container">
+    <ul>
+        <li>@Model?.Brand?.Name</li>
+        <li>@Model?.Brand?.Country.City</li>
+        <li>@Model?.Brand?.Country.Capital</li>
+        <li>@Model?.EngineCapacity</li>
+        <li>@Model?.Appearence?.Color</li>
+    </ul>
+</div>

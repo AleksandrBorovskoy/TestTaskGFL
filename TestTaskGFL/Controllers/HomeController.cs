@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Text.Json;
 using TestTaskGFL.Entities;
 using TestTaskGFL.Models;
+using TestTaskGFL.Services;
 
 namespace TestTaskGFL.Controllers
 {
@@ -15,7 +17,7 @@ namespace TestTaskGFL.Controllers
             _dbContext = dbContext;
         }
 
-        public IActionResult ReadAndSave()
+        public IActionResult ReadAndSaveJson()
         {
             var person = new PersonEntity();
             
@@ -41,7 +43,7 @@ namespace TestTaskGFL.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult Print(int id)
+        public IActionResult PrintJson(int id)
         {
             var personEntity = _dbContext.Persons.FirstOrDefault(p => p.Id == id);
 
@@ -58,6 +60,43 @@ namespace TestTaskGFL.Controllers
                 };
 
                 return View(personViewModel);
+            }
+
+            return NotFound();
+        }
+
+        public IActionResult ReadAndSaveTxt()
+        {
+            var carEntity = new CarEntity();
+            try
+            {
+                carEntity = TxtDeserializer.ReadTxtFile("data.txt");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred: {ex.Message}");
+            }
+
+            _dbContext.Cars.Add(carEntity);
+            _dbContext.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult PrintTxt(int id)
+        {
+            var carEntity = _dbContext.Cars.Include(c => c.Appearence).Include(c => c.Brand).ThenInclude(b => b.Country).FirstOrDefault(c => c.Id == id);
+
+            if(carEntity != null)
+            {
+                var carViewModel = new CarViewModel
+                {
+                    Brand = carEntity.Brand,
+                    EngineCapacity = carEntity.EngineCapacity,
+                    Appearence = carEntity.Appearence
+                };
+
+                return View(carViewModel);
             }
 
             return NotFound();

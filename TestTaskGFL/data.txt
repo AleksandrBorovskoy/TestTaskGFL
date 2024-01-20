@@ -1,0 +1,5 @@
+brand:country:city:Hamburg
+brand:country:capital:Berlin
+engineCapacity:2,5
+appearence:color:black
+brand:name:mercedes
