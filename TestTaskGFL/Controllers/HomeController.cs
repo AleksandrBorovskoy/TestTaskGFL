@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text.Json;
 using TestTaskGFL.Entities;
 using TestTaskGFL.Models;
@@ -43,7 +45,8 @@ namespace TestTaskGFL.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult PrintJson(int id)
+        [HttpGet("home/printJson/{id}/{propertyName?}")]
+        public IActionResult PrintJson(int id, string propertyName)
         {
             var personEntity = _dbContext.Persons.FirstOrDefault(p => p.Id == id);
 
@@ -58,6 +61,16 @@ namespace TestTaskGFL.Controllers
                     City = personEntity.City,
                     PhoneNumber = personEntity.PhoneNumber
                 };
+
+                if(propertyName != null)
+                {
+                    var propertyInfo = personEntity.GetType().GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+
+                    if(propertyInfo != null)
+                    {
+                        return Content(propertyInfo.GetValue(personEntity).ToString());
+                    }
+                }
 
                 return View(personViewModel);
             }
@@ -83,7 +96,8 @@ namespace TestTaskGFL.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult PrintTxt(int id)
+        [HttpGet("home/printTxt/{id}/{propertyName?}")]
+        public IActionResult PrintTxt(int id, string propertyName)
         {
             var carEntity = _dbContext.Cars.Include(c => c.Appearence).Include(c => c.Brand).ThenInclude(b => b.Country).FirstOrDefault(c => c.Id == id);
 
@@ -95,6 +109,16 @@ namespace TestTaskGFL.Controllers
                     EngineCapacity = carEntity.EngineCapacity,
                     Appearence = carEntity.Appearence
                 };
+
+                if (propertyName != null)
+                {
+                    var propertyInfo = carEntity.GetType().GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+
+                    if (propertyInfo != null)
+                    {
+                        return Content(propertyInfo.GetValue(carEntity).ToString());
+                    }
+                }
 
                 return View(carViewModel);
             }
